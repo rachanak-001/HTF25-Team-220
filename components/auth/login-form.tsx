@@ -13,16 +13,19 @@ export function LoginForm() {
   const [password, setPassword] = useState("")
   const [role, setRole] = useState<"client" | "freelancer">("freelancer")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const { login } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
     setIsLoading(true)
     try {
       await login(email, password, role)
       router.push("/jobs")
     } catch (error) {
+      setError(error instanceof Error ? error.message : "Login failed. Please try again.")
       console.error("Login failed:", error)
     } finally {
       setIsLoading(false)
@@ -31,6 +34,12 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
+
       <div>
         <label className="block text-sm font-medium mb-2">Email</label>
         <Input

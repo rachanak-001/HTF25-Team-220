@@ -14,24 +14,48 @@ export function SignupForm() {
   const [name, setName] = useState("")
   const [role, setRole] = useState<"client" | "freelancer">("freelancer")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
   const { signup } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
     setIsLoading(true)
     try {
       await signup(email, password, name, role)
-      router.push("/jobs")
+      setSuccess(true)
+      setTimeout(() => {
+        router.push("/auth/login")
+      }, 2000)
     } catch (error) {
+      setError(error instanceof Error ? error.message : "Signup failed. Please try again.")
       console.error("Signup failed:", error)
     } finally {
       setIsLoading(false)
     }
   }
 
+  if (success) {
+    return (
+      <div className="space-y-4 w-full max-w-md text-center">
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-800 font-medium">Account created successfully!</p>
+          <p className="text-green-700 text-sm mt-2">Redirecting to login...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
+
       <div>
         <label className="block text-sm font-medium mb-2">Full Name</label>
         <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required />

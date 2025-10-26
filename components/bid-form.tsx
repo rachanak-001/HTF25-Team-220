@@ -20,6 +20,7 @@ export function BidForm({ job, onBidPlaced }: BidFormProps) {
   const [amount, setAmount] = useState("")
   const [message, setMessage] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,6 +41,8 @@ export function BidForm({ job, onBidPlaced }: BidFormProps) {
       placeBid(job.id, newBid)
       setAmount("")
       setMessage("")
+      setSuccessMessage("Bid submitted successfully!")
+      setTimeout(() => setSuccessMessage(""), 3000)
       onBidPlaced?.()
     } finally {
       setIsSubmitting(false)
@@ -53,6 +56,12 @@ export function BidForm({ job, onBidPlaced }: BidFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 bg-muted-bg border border-border rounded-lg p-6">
       <h3 className="text-lg font-semibold">Place Your Bid</h3>
+
+      {successMessage && (
+        <div className="bg-green-100 border border-green-300 rounded-lg p-3 text-green-800 text-sm">
+          {successMessage}
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium mb-2">Your Bid Amount ($)</label>

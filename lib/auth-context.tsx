@@ -28,21 +28,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string, role: UserRole) => {
-    // Simulate API call
-    const newUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: email.split("@")[0],
-      role,
-      rating: 0,
-      totalReviews: 0,
+    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]")
+    const existingUser = registeredUsers.find(
+      (u: any) => u.email === email && u.password === password && u.role === role,
+    )
+
+    if (!existingUser) {
+      throw new Error("Invalid email, password, or role. Please check your credentials or sign up first.")
     }
-    setUser(newUser)
-    localStorage.setItem("user", JSON.stringify(newUser))
+
+    setUser(existingUser)
+    localStorage.setItem("user", JSON.stringify(existingUser))
   }
 
   const signup = async (email: string, password: string, name: string, role: UserRole) => {
-    // Simulate API call
+    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]")
+    const userExists = registeredUsers.some((u: any) => u.email === email && u.role === role)
+
+    if (userExists) {
+      throw new Error("An account with this email already exists for this role.")
+    }
+
     const newUser: User = {
       id: Math.random().toString(36).substr(2, 9),
       email,
@@ -51,8 +57,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       rating: 0,
       totalReviews: 0,
     }
-    setUser(newUser)
-    localStorage.setItem("user", JSON.stringify(newUser))
+
+    registeredUsers.push({
+      ...newUser,
+      password, // Store password for login verification
+    })
+
+    localStorage.setItem("registeredUsers", JSON.stringify(registeredUsers))
   }
 
   const logout = () => {
